@@ -26,44 +26,53 @@
  ******************************************************************************/
 
 #include <Wire.h>
+#include "SparkFun_VL6180X.h"
 
-#include <SparkFun_VL6180X.h>
-
-/*const float GAIN_1    = 1.01;  // Actual ALS Gain of 1.01
-const float GAIN_1_25 = 1.28;  // Actual ALS Gain of 1.28
-const float GAIN_1_67 = 1.72;  // Actual ALS Gain of 1.72
-const float GAIN_2_5  = 2.6;   // Actual ALS Gain of 2.60
-const float GAIN_5    = 5.21;  // Actual ALS Gain of 5.21
-const float GAIN_10   = 10.32; // Actual ALS Gain of 10.32
-const float GAIN_20   = 20;    // Actual ALS Gain of 20
-const float GAIN_40   = 40;    // Actual ALS Gain of 40
-*/
 #define VL6180X_ADDRESS 0x29
 
 VL6180xIdentification identification;
 VL6180x sensor(VL6180X_ADDRESS);
 
 int calibrate = 0;  // This is the value for calibrated empty distance
+int distance = calibrate;
+  
+  //int historyCount = 1;  // The number of running average, 2 seems doable, 5 will sometimes miss the counting
+  
+  //int history[historyCount];
+  //for ( int i = 0; i < historyCount; i++){
+  //  history[i] = calibrate;
+  //}
+
+  int sum = 0;
+  int avg;
+  int count = 0;
+  
+  int thresholdIn = 3; // The threshold to detect a berry
+  int thresholdOut = 8;  // The threshold to detect there's no berries
+
+  int detected = 0;  // 1: detected, a flag
 
 void setup() {
-  Serial.begin(115200); //Start Serial at 115200bps
+  Serial.begin(2000000); //Start Serial at 2000000bps
   Wire.begin(); //Start I2C library
-  delay(100); // delay .1s
+  pinMode(12, INPUT_PULLUP);  // Connect 12 to GPIO1
+  delay(100); 
 
+  
   sensor.getIdentification(&identification); // Retrieve manufacture info from device memory
   printIdentification(&identification); // Helper function to print all the Module information
 
   int result = sensor.VL6180xInit();
     if(result != 0){
-    Serial.println("Init failed! Please reset the program"); //Initialize device and check for errors
+    Serial.println("Init failed! Please check the wire!"); //Initialize device and check for errors
     while (1){}
   }; 
 
-  sensor.VL6180xDefautSettings(); //Load default settings to get started.
+  	sensor.VL6180xDefautSettings(); //Load default settings to get started.
    
    Serial.println("Initializing..."); //Initialize device and check for errors
 
-   delay(1000); // delay 1s
+   delay(200); // delay 1s
    
    Serial.println("Calibrating..."); //Initialize device and check for errors
 
@@ -78,80 +87,40 @@ void setup() {
 
    Serial.println(calibrate); //Initialize device and check for errors
    Serial.println("Ready for counting"); //Initialize device and check for errors
-
+   sensor.startMultipleRange();   //Start multiple ranging mode!!!!
+   
 }
-
+unsigned long previousMillis = 0;        // will store last time LED was updated
+int oldCount = 0;
 void loop() {
-
-  //Get Ambient Light level and report in LUX
-  //Serial.print("Ambient Light Level (Lux) = ");
-  
-  //Input GAIN for light levels, 
-  // GAIN_20     // Actual ALS Gain of 20
-  // GAIN_10     // Actual ALS Gain of 10.32
-  // GAIN_5      // Actual ALS Gain of 5.21
-  // GAIN_2_5    // Actual ALS Gain of 2.60
-  // GAIN_1_67   // Actual ALS Gain of 1.72
-  // GAIN_1_25   // Actual ALS Gain of 1.28
-  // GAIN_1      // Actual ALS Gain of 1.01
-  // GAIN_40     // Actual ALS Gain of 40
-  
-  //Serial.println( sensor.getAmbientLight(GAIN_1) );
-
-  //Get Distance and report in mm
-  //Serial.print("Distance measured (mm) = ");
   
   // Initialize all the variables
-  int distance = calibrate;
-  
-  int historyCount = 2;  // The number of running average, 2 seems doable, 5 will sometimes miss the counting
-  
-  int history[historyCount];
-  for ( int i = 0; i < historyCount; i++){
-    history[i] = calibrate;
-  }
 
-  int sum = 0;
-  int avg;
-  int count = 0;
-  
-  int thresholdIn = 4; // The threshold to detect a berry
-  int thresholdOut = 2;  // The threshold to detect there's no berries
 
-  int detected = 0;  // 1: detected, a flag
-  
-  while (1){
-      distance = sensor.getDistance();
+     distance = sensor.mygetDistance();
 
-      sum  = 0;
-      for ( int i = 0; i < historyCount - 1; i++){
-        history[i] = history[i+1];
-        sum += history[i + 1];
-      }
-      history[historyCount - 1] = distance;
-      sum += distance;
-
-      avg = sum / historyCount;
 
       if ( ! detected){
-        if ( avg + thresholdIn < calibrate){
+        if ( distance + thresholdIn < calibrate){
           // Detected a new berry
           detected = 1;
           count ++;
-          Serial.println( count ); 
 
         }
       }
       else {
-        if ( avg + thresholdOut > calibrate){
+        if ( distance + thresholdOut > calibrate){   // (avg + )
           // No berries
           detected = 0;
+
         }
       }
  
+  if (digitalRead(12) == LOW){
+          Serial.println( count ); 
+
   }
-  
-  
+
 };
 
 void printIdentification(struct VL6180xIdentification *temp){

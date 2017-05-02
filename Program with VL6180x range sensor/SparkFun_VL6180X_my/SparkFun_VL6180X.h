@@ -142,6 +142,10 @@ public:
 
   // Get Range distance in (mm)
   uint8_t getDistance();
+  
+  uint8_t mygetDistance();
+  
+  uint8_t startMultipleRange();
   // Get ALS level in Lux
   float getAmbientLight(vl6180x_als_gain VL6180X_ALS_GAIN);
 
