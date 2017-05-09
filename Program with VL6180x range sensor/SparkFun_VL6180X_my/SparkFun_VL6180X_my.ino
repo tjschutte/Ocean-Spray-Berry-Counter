@@ -53,7 +53,7 @@ int distance = calibrate;
   int detected = 0;  // 1: detected, a flag
 
 void setup() {
-  Serial.begin(2000000); //Start Serial at 2000000bps
+  Serial.begin(115200); //Start Serial at 2000000bps
   Wire.begin(); //Start I2C library
   pinMode(12, INPUT_PULLUP);  // Connect 12 to GPIO1
   delay(100); 
@@ -117,7 +117,8 @@ void loop() {
       }
  
   if (digitalRead(12) == LOW){
-          Serial.println( count ); 
+    Serial.println(distance);
+    //      Serial.println( count ); 
 
   }
 

@@ -100,7 +100,7 @@ void VL6180x::VL6180xDefautSettings(void){
   VL6180x_setRegister(VL6180X_SYSALS_INTERMEASUREMENT_PERIOD, 0x0A); // Set default ALS inter-measurement period to 100ms
   VL6180x_setRegister(VL6180X_SYSTEM_INTERRUPT_CONFIG_GPIO, 0x24); // Configures interrupt on ‘New Sample Ready threshold event’ 
   //Additional settings defaults from community
-  VL6180x_setRegister(VL6180X_SYSRANGE_MAX_CONVERGENCE_TIME, 0x05);  // Default 0x32, modified to match
+  VL6180x_setRegister(VL6180X_SYSRANGE_MAX_CONVERGENCE_TIME, 0x06);  // Default 0x32, modified to match
   VL6180x_setRegister(VL6180X_SYSRANGE_RANGE_CHECK_ENABLES, 0x10 | 0x01);
   VL6180x_setRegister16bit(VL6180X_SYSRANGE_EARLY_CONVERGENCE_ESTIMATE, 0x7B );
   VL6180x_setRegister16bit(VL6180X_SYSALS_INTEGRATION_PERIOD, 0x64);
@@ -152,19 +152,21 @@ uint8_t VL6180x::mygetDistance()  // Get distance using continuous mode & also c
 	uint8_t status;
 	uint8_t range_status;
 
+	uint8_t count = 0;
 	// check the status
 	status = VL6180x_getRegister(0x4f);
 	range_status = status & 0x07;
-
+	
 	// wait for new measurement ready status
 	while (range_status != 0x04) {
 		status = VL6180x_getRegister(0x4f);
 		range_status = status & 0x07;
+		count++;
 	}
 	uint8_t distance = VL6180x_getRegister(VL6180X_RESULT_RANGE_VAL);
 	VL6180x_setRegister(VL6180X_SYSTEM_INTERRUPT_CLEAR, 0x07);
-
-	return distance;
+	return count;
+	//return distance;
 }
 
 
