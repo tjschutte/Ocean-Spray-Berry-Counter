@@ -47,15 +47,15 @@ int distance = calibrate;
   int avg;
   int count = 0;
   
-  int thresholdIn = 3; // The threshold to detect a berry
-  int thresholdOut = 8;  // The threshold to detect there's no berries
+  int thresholdIn = 5; // The threshold to detect a berry  3
+  int thresholdOut = 9;  // The threshold to detect there's no berries
 
   int detected = 0;  // 1: detected, a flag
 
 void setup() {
   Serial.begin(115200); //Start Serial at 2000000bps
   Wire.begin(); //Start I2C library
-  pinMode(12, INPUT_PULLUP);  // Connect 12 to GPIO1
+  pinMode(3, INPUT_PULLUP);  // Connect 3 to as button for 
   delay(100); 
 
   
@@ -79,6 +79,7 @@ void setup() {
    int distance = sensor.getDistance();
    int count = 0;
    while (count < 200){
+    
     distance += sensor.getDistance();
     count++;
    }
@@ -87,18 +88,21 @@ void setup() {
 
    Serial.println(calibrate); //Initialize device and check for errors
    Serial.println("Ready for counting"); //Initialize device and check for errors
+   //calibrate = 34;
    sensor.startMultipleRange();   //Start multiple ranging mode!!!!
    
 }
 unsigned long previousMillis = 0;        // will store last time LED was updated
+
 int oldCount = 0;
 void loop() {
   
   // Initialize all the variables
 
-
+     //previousMillis = millis();
+     //delay(20);
      distance = sensor.mygetDistance();
-
+     //unsigned long newTime = millis()-previousMillis;
 
       if ( ! detected){
         if ( distance + thresholdIn < calibrate){
@@ -116,8 +120,8 @@ void loop() {
         }
       }
  
-  if (digitalRead(12) == LOW){
-    Serial.println(distance);
+  if (digitalRead(3) == LOW){
+    Serial.println(count);  // distance
     //      Serial.println( count ); 
 
   }

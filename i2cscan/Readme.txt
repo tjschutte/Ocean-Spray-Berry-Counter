@@ -1,0 +1,1 @@
+This is a I2C Scanner program. It's used to scan the I2C connection to check if the connection is good.

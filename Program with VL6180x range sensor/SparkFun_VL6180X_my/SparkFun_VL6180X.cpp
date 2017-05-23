@@ -89,7 +89,7 @@ void VL6180x::VL6180xDefautSettings(void){
 
 
   VL6180x_setRegister(VL6180X_SYSTEM_MODE_GPIO1, 0x10); // Set GPIO1 high when sample complete
-  VL6180x_setRegister(VL6180X_READOUT_AVERAGING_SAMPLE_PERIOD, 0x30); //Set Avg sample period
+  VL6180x_setRegister(VL6180X_READOUT_AVERAGING_SAMPLE_PERIOD, 0x20); //Set Avg sample period     // Default 0x30: now 0x20
   VL6180x_setRegister(VL6180X_SYSALS_ANALOGUE_GAIN, 0x46); // Set the ALS gain
   VL6180x_setRegister(VL6180X_SYSRANGE_VHV_REPEAT_RATE, 0xFF); // Set auto calibration period (Max = 255)/(OFF = 0)
   VL6180x_setRegister(VL6180X_SYSALS_INTEGRATION_PERIOD, 0x63); // Set ALS integration time to 100ms
@@ -100,12 +100,12 @@ void VL6180x::VL6180xDefautSettings(void){
   VL6180x_setRegister(VL6180X_SYSALS_INTERMEASUREMENT_PERIOD, 0x0A); // Set default ALS inter-measurement period to 100ms
   VL6180x_setRegister(VL6180X_SYSTEM_INTERRUPT_CONFIG_GPIO, 0x24); // Configures interrupt on ‘New Sample Ready threshold event’ 
   //Additional settings defaults from community
-  VL6180x_setRegister(VL6180X_SYSRANGE_MAX_CONVERGENCE_TIME, 0x06);  // Default 0x32, modified to match
+  VL6180x_setRegister(VL6180X_SYSRANGE_MAX_CONVERGENCE_TIME, 0x07);  // Default 0x32, modified to match 06
   VL6180x_setRegister(VL6180X_SYSRANGE_RANGE_CHECK_ENABLES, 0x10 | 0x01);
   VL6180x_setRegister16bit(VL6180X_SYSRANGE_EARLY_CONVERGENCE_ESTIMATE, 0x7B );
   VL6180x_setRegister16bit(VL6180X_SYSALS_INTEGRATION_PERIOD, 0x64);
 
-  VL6180x_setRegister(VL6180X_READOUT_AVERAGING_SAMPLE_PERIOD,0x30);
+  VL6180x_setRegister(VL6180X_READOUT_AVERAGING_SAMPLE_PERIOD,0x10);   // avg sample period: Default: 0x30 , now try 0x20  ////////////////////////////
   VL6180x_setRegister(VL6180X_SYSALS_ANALOGUE_GAIN,0x40);
   VL6180x_setRegister(VL6180X_FIRMWARE_RESULT_SCALER,0x01);
 }
@@ -141,6 +141,19 @@ uint8_t VL6180x::getDistance()
 {
   VL6180x_setRegister(VL6180X_SYSRANGE_START, 0x01); //Start Single shot mode
   delay(10);
+
+  uint8_t status;
+  uint8_t range_status;
+  status = VL6180x_getRegister(0x4f);
+  range_status = status & 0x07;
+  
+  // wait for new measurement ready status
+  while (range_status != 0x04) {
+    status = VL6180x_getRegister(0x4f);
+    range_status = status & 0x07;
+    //count++;
+  }
+  
   return VL6180x_getRegister(VL6180X_RESULT_RANGE_VAL);
   VL6180x_setRegister(VL6180X_SYSTEM_INTERRUPT_CLEAR, 0x07);
   //	return distance;
@@ -152,7 +165,7 @@ uint8_t VL6180x::mygetDistance()  // Get distance using continuous mode & also c
 	uint8_t status;
 	uint8_t range_status;
 
-	uint8_t count = 0;
+	//uint8_t count = 0;
 	// check the status
 	status = VL6180x_getRegister(0x4f);
 	range_status = status & 0x07;
@@ -161,12 +174,12 @@ uint8_t VL6180x::mygetDistance()  // Get distance using continuous mode & also c
 	while (range_status != 0x04) {
 		status = VL6180x_getRegister(0x4f);
 		range_status = status & 0x07;
-		count++;
+		//count++;
 	}
 	uint8_t distance = VL6180x_getRegister(VL6180X_RESULT_RANGE_VAL);
 	VL6180x_setRegister(VL6180X_SYSTEM_INTERRUPT_CLEAR, 0x07);
-	return count;
-	//return distance;
+	//return count;
+	return distance;
 }
 
 

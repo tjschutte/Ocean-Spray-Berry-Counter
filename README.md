@@ -24,13 +24,13 @@ The solution chosen was the distance sensor.  This solution was chosen based on 
 * USB Mini-B Cable
 * one external push-button connected to D12 input on Arduino, as a button to display current count
 
-## Assembly 
+## Assembly for using the range sensor
 1. Arduino: A4 - VL6180x: SDA
 2. Arduino: A5 - VL6180x: SCL
 3. Arduino: 5V - VL6180x: VCC
 4. Arduino: GND - VL6180x: GND
-5. Arduino: D12 - push button pin 1
-6. Arduino: GND - push button pin 2
+5. Arduino: D3 - push button pin 1 (the other pin of push sensor connects to Arduino's GND)
+
 
 ## Software installation and programming on microcontroller
 For installing the counting Software on the Arduino, you will need the Arduino IDE which can be found here: [https://www.arduino.cc/en/Main/Software](https://www.arduino.cc/en/Main/Software). Download and extract the zip of this repository to your chosen location.  Then using the Arduino IDE open the "sketch" program (the .ino file).
@@ -42,7 +42,7 @@ The board should now be programmed.
 
 ## Setup and Usage Instructions
 The Board requires USB power, and will display the count over a serial connection with a PC.
-Download a serial communication program like [Putty](http://www.putty.org/).  Open your program and set the port to the COM port of your device.  Then set the baud rate for the port to 2000000.  When the board first powers up, it takes some calibration measurements, and will display the calibration measurement.  If the calibration measurement does not display, the board is already done calibrating and is ready to count.  Load berries making sure to poru slowly as not to jam the funnel.  When done loading berries a final count will be displayed in your serial communication program.  To reset the count, simply unplug the device and plug it in again, or push the small red button located on the Arduino board.
+Download a serial communication program like [Putty](http://www.putty.org/).  Open your program and set the port to the COM port of your device.  Then set the baud rate for the port to 115200.  When the board first powers up, it takes some calibration measurements, and will display the calibration measurement.  If the calibration measurement does not display, the board is already done calibrating and is ready to count.  Load berries making sure to poru slowly as not to jam the funnel.  When done loading berries a final count will be displayed in your serial communication program.  To reset the count, simply unplug the device and plug it in again, or push the small red button located on the Arduino board.
 
 ## Comments on solution and suggestions for future revisions
 1. Do not implement a 4 digit 7 segment display without outside controller. We tried to use a basic 7 seg display, and it requires a lot of processing power to correctly display the digits, and making counting impossible to finish.
